@@ -64,20 +64,25 @@ def show_data():
 
 
 class tablemaker(object):
-    def __init__(self):
-        self.db = sqlite3.connect("tempdb.sqlite3")
+    def __init__(self, databasefilename):
+        self.db = sqlite3.connect(databasefilename)
         self.cursor = self.db.cursor()
-        self.cursor.execute("drop table if exists charities;")
+        
         
         
     
-    def save_to_database(self,filename):
+    def save_to_database(self,filename,tablename = None):
+        
         f = open(filename,"r",encoding="utf-8-sig")
         reader = csv.DictReader(f)
+        if tablename == None:
+            tablename = os.path.basename(filename)
+        # pdb.set_trace()
+        self.cursor.execute("drop table IF EXISTS {};".format(tablename))
     
         fl = ",".join(["{} TEXT".format(i) for i in reader.fieldnames])
         # print(fl)
-        create_statement = "create table charities ({});".format(fl)
+        create_statement = "create table {} ({});".format(tablename,fl)
         self.cursor.execute(create_statement)
         self.db.commit()
         print(create_statement)
@@ -87,11 +92,11 @@ class tablemaker(object):
             # print (vals)
             inserter = ",".join(len(vals) * "?")
             
-            self.cursor.execute("insert into charities values ({})".format(inserter), vals)
+            self.cursor.execute("insert into {} values ({})".format(tablename,inserter), vals)
         
         self.db.commit()
 if __name__ == "__main__":
     start = time.time()
-    tbl = tablemaker()
+    tbl = tablemaker("blah")
     tbl.save_to_database(filename)
     print("elapsed: {}".format(time.time() - start))
