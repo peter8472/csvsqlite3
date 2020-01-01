@@ -11,6 +11,7 @@ import re
 #import MySQLdb not always available
 import datetime # stupid mysqldb!
 import sys
+import csv
 
 class testjunk():
     def execute(self,str):

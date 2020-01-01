@@ -8,14 +8,18 @@ import os
 import sqlite3
 import pdb
 import re
+import csv
+
 def create_table(filename):
+  'commenting out the types stuff, which was designed for pygtfs
   typedb = sqlite3.connect("types.sqlite3")
   all_fields = ""
   tmp_fields = ""
   tname = filename.replace(".txt", "",1)
   fd = open(filename, "r")
   headstr = fd.readline().rstrip()
-  tmp_fields = headstr.split(",");
+  tmp_fields = headstr.split(",")
+
   for i in tmp_fields:
     ty =     typedb.execute("select type from types where name = '" +
 	i+"';")#    if ty.rowcount == -1: rowcount doesn' twork with select
@@ -69,8 +73,9 @@ if __name__ == "__main__":
   print "# this output created by the makeloaders.py script"
   print "create database if not exists unitrans;"
   print "use unitrans"
-  for i in os.listdir("."):
-     if i.endswith(".txt"):
-	create_table(i)
+  for i in os.listdir("../nutrient"):
+     if i.endswith(".csv")
+     print(i)
+	#create_table(i)
 
 
