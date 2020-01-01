@@ -22,20 +22,20 @@ def create_table(filename):
     rows = ty.fetchall()
     
     if len(rows) != 1:
-      print "missing or extra data type %s" % i
+      print ("missing or extra data type %s" % i)
       pdb.set_trace()    
     all_fields = all_fields + "%s %s,\n" % ( i, rows[0][0])
   
   all_fields = re.sub(",$", "", all_fields)
 
   dropper = "drop table if exists %s;" % tname
-  print dropper
+  print (dropper)
   u = """
 create table if not exists %s(
 %s
 );
 """ % (tname,  all_fields)
-  print u
+  print (u)
 
 def load_file(filename):
   typedb = sqlite3.connect("types.sqlite3")
@@ -69,8 +69,9 @@ if __name__ == "__main__":
   print "# this output created by the makeloaders.py script"
   print "create database if not exists unitrans;"
   print "use unitrans"
-  for i in os.listdir("."):
-     if i.endswith(".txt"):
-	create_table(i)
+  for i in os.listdir("../nutrient"):
+     if i.endswith(".csv"):
+       print(i)
+	
 
 
