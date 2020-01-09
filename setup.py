@@ -80,11 +80,11 @@ setup(
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='Peter',  # Optional
+    # author='Peter',  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    # author_email='pmgcal@outlook.com',  # Optional
+    # author_email='XXXXXX@outlook.com',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
