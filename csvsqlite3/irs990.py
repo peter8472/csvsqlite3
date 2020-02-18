@@ -8,6 +8,7 @@ import re
 import urllib.request
 import datetime
 import time
+import csvsqlite3
 
 from xml.dom import minidom
 
@@ -63,38 +64,9 @@ def show_data():
         website = first_tagval_ifany("WebsiteAddressTxt")
 
 
-class tablemaker(object):
-    def __init__(self, databasefilename):
-        self.db = sqlite3.connect(databasefilename)
-        self.cursor = self.db.cursor()
-        
-    
-    def save_to_database(self,filename,tablename = None):
-        
-        f = open(filename,"r",encoding="utf-8-sig")
-        reader = csv.DictReader(f)
-        if tablename == None:
-            tablename = os.path.basename(filename)
-        # pdb.set_trace()
-        self.cursor.execute("drop table IF EXISTS {};".format(tablename))
-    
-        fl = ",".join(['"{}" TEXT'.format(i) for i in reader.fieldnames])
-        # print(fl)
-        create_statement = "create table {} ({});".format(tablename,fl)
-        self.cursor.execute(create_statement)
-        self.db.commit()
-        print(create_statement)
-        for x in reader:
-            vals =tuple(x.values())
-            # pdb.set_trace()
-            # print (vals)
-            inserter = ",".join(len(vals) * "?")
-            
-            self.cursor.execute("insert into {} values ({})".format(tablename,inserter), vals)
-        
-        self.db.commit()
+
 if __name__ == "__main__":
     start = time.time()
-    tbl = tablemaker("blah2348977928347592834")
+    tbl = csvsqlite3.tablemaker("blah2348977928347592834")
     tbl.save_to_database(filename)
     print("elapsed: {}".format(time.time() - start))
