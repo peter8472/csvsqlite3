@@ -97,6 +97,6 @@ class tablemaker(object):
         self.db.commit()
 if __name__ == "__main__":
     start = time.time()
-    tbl = tablemaker("blah")
+    tbl = tablemaker("blah2348977928347592834")
     tbl.save_to_database(filename)
     print("elapsed: {}".format(time.time() - start))

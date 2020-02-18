@@ -1,0 +1,76 @@
+import pdb
+import sys
+import csv
+import sqlite3
+import os
+import glob
+import re
+import urllib.request
+import datetime
+import time
+
+
+class Timer(object):
+    def __init__(self):
+        self.start = time.time()
+    def print(self, message=""):
+        print("{} {}".format(message,time.time() - self.start))
+    def end(self):
+        return time.time() - self.start
+        
+
+def query1():
+    '''unnecessary inner join with branded food database, which had
+    no special information.
+    '''
+    t1 = Timer()
+    db = sqlite3.connect("blah")
+    cur = db.cursor()
+    cur.execute("""create temporary table oyster as select * from "food" inner join 
+    "branded_food" using (fdc_id) where 
+    description like '%soup%oyster%';""")
+    # t1.print("food inner join branded where description like soup...")
+    t2 = Timer()
+    
+
+    cur.execute("create temporary table tempnut as select * from food_nutrient inner join oyster using(fdc_id)")
+    # t2.print('select * from food_nutrient inner join oyster using(fdc_id)')
+
+    cur.execute( """
+    select brand_owner,description,tempnut.amount from nutrient inner join tempnut on tempnut.nutrient_id = nutrient.id
+     where nutrient.name like '%sodium%' order by cast(amount as float);""")
+    
+
+    
+    rows = cur.fetchall()
+    for i in rows:
+        print(i[0], i[1],(float(i[2]) * (15.0/ 100)))
+    
+
+def query2():
+    t1 = Timer()
+    db = sqlite3.connect("newdb")
+    cur = db.cursor()
+    # cur.execute("""create temporary table oyster as select * from "food" inner join 
+    # "branded_food" using (fdc_id) where 
+    # description like '%soup%oyster%';""")
+    # t1.print("food inner join branded where description like soup...")
+    t2 = Timer()
+    cur.execute("create temporary table tempnut as select * from food_nutrient inner join food using(fdc_id) where description like '%soup%oyster%'")
+    # t2.print('select * from food_nutrient inner join oyster using(fdc_id)')
+
+    cur.execute( """
+    select description,tempnut.amount from nutrient inner join tempnut on tempnut.nutrient_id = nutrient.id
+     where nutrient.name like '%sodium%' order by cast(amount as float);""")
+    rows = cur.fetchall()
+    for i in rows:
+        print(i[0], (float(i[1]) * (15.0/ 100)))
+
+if __name__ == "__main__":
+    
+    t2 = Timer()
+    query2()
+    t2.print('query2')
+    t1 = Timer()
+    query1()
+    t1.print("query 1:")
