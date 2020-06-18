@@ -51,31 +51,23 @@ def query2(filename):
     t1 = Timer()
     db = sqlite3.connect(filename)
     cur = db.cursor()
-    # cur.execute("""create temporary table oyster as select * from "food" inner join 
-    # "branded_food" using (fdc_id) where 
-    # description like '%soup%oyster%';""")
-    # t1.print("food inner join branded where description like soup...")
     t2 = Timer()
     cur.execute("""create temporary table tempnut as 
     select * from food_nutrient inner join food using(fdc_id) 
     where description like '%oyster%crackers%'
-      or description like '%cracker%oyster%'
-      
-      
-      
-      ;
-    
-    
+      or description like '%cracker%oyster%' ;
     """)
     # t2.print('select * from food_nutrient inner join oyster using(fdc_id)')
 
     cur.execute( """
     create temporary table beforebranding as 
     
-    select fdc_id,description,tempnut.amount,food_category_id from nutrient inner join tempnut on tempnut.nutrient_id = nutrient.id
+    select fdc_id,description,tempnut.amount,food_category_id from 
+        nutrient inner join tempnut on tempnut.nutrient_id = nutrient.id
      where nutrient.name like '%sodium%' order by cast(amount as float);""")
     cur.execute("""
-    select brand_owner,description,amount,food_category_id from beforebranding inner join branded_food using (fdc_id)
+    select brand_owner,description,amount,food_category_id 
+    from beforebranding  inner join branded_food using (fdc_id)
     """) 
     rows = cur.fetchall()
     for i in rows:
@@ -90,5 +82,5 @@ if __name__ == "__main__":
     # runtest("newdb", query1) slower...
     
     runtest("newdb", query2)
-    
+
     
