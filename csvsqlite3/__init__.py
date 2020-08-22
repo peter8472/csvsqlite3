@@ -12,9 +12,9 @@ import time
 from xml.dom import minidom
 
 home = os.getenv("USERPROFILE")
-dldir = os.path.join(home,"Downloads")
+# dldir = os.path.join(home,"Downloads")
 s3url = "https://s3.amazonaws.com/irs-form-990/"
-filename = glob.glob(os.path.join(dldir,"irs charity 990", "index2019"))[0]
+#filename = glob.glob(os.path.join(dldir,"irs charity 990", "index2019"))[0]
 
 
 def first_tagval_ifany(tagname):
