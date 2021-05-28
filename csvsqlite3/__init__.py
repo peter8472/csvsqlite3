@@ -12,12 +12,12 @@ from pathlib import Path
 
 from xml.dom import minidom
 
-home = os.getenv("USERPROFILE")
-
-s3url = "https://s3.amazonaws.com/irs-form-990/"
-
-
-
+def print_column(filename, colnum, num=10):
+   infile = open(filename)
+   reader=csv.reader(infile)
+   for x in range(0,num):
+       print(next(reader)[colnum])
+   
 
 
 
@@ -32,8 +32,13 @@ def first_tagval_ifany(tagname):
         # return(desc[0].firstChild.nodeValue)
 
 
-class tablemaker(object):
+class Tablemaker(object):
+    '''
+    
+    '''
     def __init__(self, databasefilename):
+        'call with name of file in which to store the database'
+        'then call save_to_database with optinoal column names'
         self.db = sqlite3.connect(databasefilename)
         self.cursor = self.db.cursor()
         
@@ -42,12 +47,14 @@ class tablemaker(object):
             tablename = os.path.basename(filename)
 
         self.cursor.execute("drop table IF EXISTS {};".format(tablename))
-    def save_to_database(self,filename,tablename = None, 
-        colnames=None, drop=False, fieldstring=None):
-
-        
-        f = open(filename,"r",encoding="utf-8-sig")
-        reader = csv.DictReader(f)
+    def save_to_database(self,filename,tablename = None, encoding = "utf-8-sig",
+        colnames=None, drop=False, fieldstring=None, infile=None):
+        assert colnames == None or fieldstring == None # can't give both
+        if infile==None:
+            f = open(filename,"r",encoding=encoding)
+            reader = csv.DictReader(f)
+        else:
+            reader= csv.DictReader(infile)
         if tablename == None:
             
             tablename =    os.path.basename(filename).split(".")[0]
@@ -82,6 +89,8 @@ class tablemaker(object):
 if __name__ == "__main__":
     
     start = time.time()
-    tbl = tablemaker("blah2348977928347592834")
-    tbl.save_to_database(filename)
+    
+    
     print("elapsed: {}".format(time.time() - start))
+    print("this library no longer has a __main__ function")
+    
