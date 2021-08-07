@@ -13,11 +13,18 @@ from pathlib import Path
 from xml.dom import minidom
 
 def print_column(filename, colnum, num=10):
-   infile = open(filename)
-   reader=csv.reader(infile)
-   for x in range(0,num):
-       print(next(reader)[colnum])
+    'print out the nth codlum of n rows of the table'
+    infile = open(filename)
+    reader=csv.reader(infile)
+    for x in range(0,num):
+        print(next(reader)[colnum])
    
+def count_headers(filename):
+    infile = open(filename)
+    reader=csv.reader(infile)
+    cols = next(reader)
+    return len(cols)
+
 
 
 
@@ -86,6 +93,24 @@ class Tablemaker(object):
             self.cursor.execute("insert into {} values ({})".format(tablename,inserter), vals)
         
         self.db.commit()
+    def add_data(self,filename,tablename = None,encoding = "utf-8-sig", skip_lines=1):
+    
+        f = open(filename,"r",encoding=encoding)
+        reader = csv.DictReader(f)
+        for x in range(0, skip_lines):
+            next(reader ) # skip
+    
+        if tablename == None:
+            
+            print("you must give a tablename for add_data")
+            return
+        for x in reader:
+            vals =tuple(x.values())
+            inserter = ",".join(len(vals) * "?")
+            self.cursor.execute("insert into {} values ({})".format(tablename,inserter), vals)
+        
+        self.db.commit()
+
 if __name__ == "__main__":
     
     start = time.time()
