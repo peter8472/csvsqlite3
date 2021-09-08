@@ -9,6 +9,7 @@ import urllib.request
 import datetime
 import time
 from pathlib import Path
+from collections import OrderedDict
 
 from xml.dom import minidom
 
@@ -24,6 +25,22 @@ def count_headers(filename):
     reader=csv.reader(infile)
     cols = next(reader)
     return len(cols)
+
+class Schema():
+    'inputs and outputs schemas from various formats'
+    def __init__(self, fieldnames=None, datatypes=None):
+        if fieldnames != None:
+            self.fields = OrderedDict.fromkeys(fieldnames, value="TEXT")
+        elif datatypes != None:
+            fnames = ["field{}".format(i) for i in range(len(datatypes))]
+            self.fields = OrderedDict(zip(fnames, datatypes))
+    def to_create(self):
+        ray = []
+        for x in self.fields.keys():
+            ray.append("{} {}".format(x,self.fields[x]))
+        return ",".join(ray)
+
+
 
 
 
@@ -43,11 +60,16 @@ class Tablemaker(object):
     '''
     
     '''
-    def __init__(self, databasefilename):
+    def __init__(self, databasefilename, dialect=None):
         'call with name of file in which to store the database'
         'then call save_to_database with optinoal column names'
         self.db = sqlite3.connect(databasefilename)
         self.cursor = self.db.cursor()
+        if dialect != None:
+            self.dialect = dialect
+        else:
+            self.dialect = csv.excel
+        
         
     def drop_table(self, tablename = None):
         if tablename == None:
@@ -59,9 +81,9 @@ class Tablemaker(object):
         assert colnames == None or fieldstring == None # can't give both
         if infile==None:
             f = open(filename,"r",encoding=encoding)
-            reader = csv.DictReader(f)
+            reader = csv.DictReader(f,dialect=self.dialect)
         else:
-            reader= csv.DictReader(infile)
+            reader= csv.DictReader(infile, dialect=self.dialect)
         if tablename == None:
             
             tablename =    os.path.basename(filename).split(".")[0]
@@ -107,7 +129,7 @@ class Tablemaker(object):
         for x in reader:
             vals =tuple(x.values())
             inserter = ",".join(len(vals) * "?")
-            self.cursor.execute("insert into {} values ({})".format(tablename,inserter), vals)
+            self.cursor.execute("insert or ignore into {} values ({})".format(tablename,inserter), vals)
         
         self.db.commit()
 
