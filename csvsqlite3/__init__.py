@@ -28,9 +28,9 @@ def count_headers(filename):
 
 class Schema():
     'inputs and outputs schemas from various formats'
-    def __init__(self, fieldnames=None, datatypes=None):
+    def __init__(self, fieldnames=None, datatypes=None, deftype='TEXT'):
         if fieldnames != None:
-            self.fields = OrderedDict.fromkeys(fieldnames, value="TEXT")
+            self.fields = OrderedDict.fromkeys(fieldnames, value=deftype)
         elif datatypes != None:
             fnames = ["field{}".format(i) for i in range(len(datatypes))]
             self.fields = OrderedDict(zip(fnames, datatypes))
@@ -39,6 +39,13 @@ class Schema():
         for x in self.fields.keys():
             ray.append("{} {}".format(x,self.fields[x]))
         return ",".join(ray)
+    def get_fieldnames(self):
+        return self.fields.keys()
+    def set_type(self, fieldname, fieldtype):
+        if not fieldname in self.fields.keys():
+            
+            raise KeyError
+        self.fields[fieldname] = fieldtype
 
 
 
@@ -76,14 +83,17 @@ class Tablemaker(object):
             tablename = os.path.basename(filename)
 
         self.cursor.execute("drop table IF EXISTS {};".format(tablename))
+        self.db.commit()
     def save_to_database(self,filename,tablename = None, encoding = "utf-8-sig",
-        colnames=None, drop=False, fieldstring=None, infile=None):
+        colnames=None, drop=False, fieldstring=None, infile=None,schema=None):
         assert colnames == None or fieldstring == None # can't give both
         if infile==None:
-            f = open(filename,"r",encoding=encoding)
-            reader = csv.DictReader(f,dialect=self.dialect)
-        else:
-            reader= csv.DictReader(infile, dialect=self.dialect)
+            infile = open(filename,"r",encoding=encoding)
+        myfieldnasmes = None
+        if schema !=None:
+            myfieldnames = schema.get_fieldnames()
+        
+        reader= csv.DictReader(infile, dialect=self.dialect, fieldnames=myfieldnasmes)
         if tablename == None:
             
             tablename =    os.path.basename(filename).split(".")[0]
@@ -104,6 +114,8 @@ class Tablemaker(object):
         fl = ",".join(['"{}" TEXT'.format(i) for i in myfieldnames])
         if fieldstring != None:
             fl = fieldstring
+        if schema != None:
+            fl = schema.to_create()
         
         create_statement = "create table if not exists {} ({});".format(tablename,fl)
         self.cursor.execute(create_statement)
