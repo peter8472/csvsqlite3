@@ -89,11 +89,11 @@ class Tablemaker(object):
         assert colnames == None or fieldstring == None # can't give both
         if infile==None:
             infile = open(filename,"r",encoding=encoding)
-        myfieldnasmes = None
+        myfieldnames = None
         if schema !=None:
-            myfieldnames = schema.get_fieldnames()
+            myfieldnames = list(schema.get_fieldnames())
         
-        reader= csv.DictReader(infile, dialect=self.dialect, fieldnames=myfieldnasmes)
+        reader= csv.DictReader(infile, dialect=self.dialect, fieldnames=myfieldnames)
         if tablename == None:
             
             tablename =    os.path.basename(filename).split(".")[0]
